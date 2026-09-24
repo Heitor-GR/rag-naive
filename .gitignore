@@ -1,0 +1,16 @@
+# Ambiente Virtual
+.venv/
+venv/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Banco Vetorial e Dados Locais
+data/vector_db/
+data/raw/*.pdf
+
+# Configurações do ambiente / IDE
+.env
+.vscode/
+.idea/
