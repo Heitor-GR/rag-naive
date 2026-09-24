@@ -15,18 +15,16 @@ class HybridRetriever:
     1. Busca Híbrida (ChromaDB + BM25 unificados via RRF) -> Traz candidatos iniciais (ex: 15).
     2. Reranker (Cross-Encoder) -> Filtra e reordena para entregar apenas os mais relevantes (ex: 3).
     """
-    def __init__(self, vector_db, documents: List[Document], k_rrf: int = 60, model_reranker: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"):
+    def __init__(self, vector_db, documents: List[Document], k_rrf: int = 60, model_reranker: str = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"):
         self.vector_db = vector_db
         self.documents = documents
         self.k_rrf = k_rrf
         
-        # 1. BM25 (Busca Léxica)
         print("[*] Indexando chunks para busca léxica (BM25)...")
         corpus_tokenizado = [tokenizar_portugues(doc.page_content) for doc in documents]
         self.bm25 = BM25Okapi(corpus_tokenizado)
         
-        # 2. Reranker (Cross-Encoder)
-        print("[*] Carregando modelo de Reranking (Cross-Encoder)...")
+        print("[*] Carregando modelo de Reranking Multilíngue (Cross-Encoder)...")
         self.reranker = CrossEncoder(model_reranker)
 
     def _buscar_bm25(self, query: str, top_k: int) -> List[Document]:
@@ -34,15 +32,14 @@ class HybridRetriever:
         scores = self.bm25.get_scores(query_tokenizada)
         indices_top = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
         return [self.documents[indices_top[i]] for i in range(len(indices_top)) if scores[indices_top[i]] > 0]
-
-    def buscar(self, query: str, top_k: int = 3, candidatos_iniciais: int = 15) -> List[Document]:
+    def buscar(self, query: str, top_k: int = 5, candidatos_iniciais: int = 35) -> List[Document]:
         """
-        Recupera candidatos via RRF e aplica o Cross-Encoder para entregar apenas o top_k refinado.
+        1. Busca 35 candidatos na busca híbrida (BM25 + ChromaDB via RRF).
+        2. O Reranker Multilíngue avalia os 35 e devolve apenas os 5 melhores.
         """
-        # 1. ETAPA GROSSA: Traz 15 candidatos da Busca Híbrida (BM25 + ChromaDB)
         cand_vetoriais = self.vector_db.similarity_search(query, k=candidatos_iniciais)
         cand_lexicos = self._buscar_bm25(query, top_k=candidatos_iniciais)
-        
+            
         # Fusão RRF
         rrf_scores = {}
         def acumular_rrf(docs: List[Document]):

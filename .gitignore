@@ -14,3 +14,16 @@ data/raw/*.pdf
 .env
 .vscode/
 .idea/
+
+# Ambientes virtuais e cache
+venv/
+.venv/
+__pycache__/
+
+# Chaves e variáveis de ambiente
+.env
+
+# PDFs e banco vetorial
+*.pdf
+chroma_db/
+.chroma/

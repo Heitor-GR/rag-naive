@@ -11,6 +11,6 @@ CHUNK_OVERLAP = 200
 
 # Modelos
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-LLM_MODEL = "llama3:8b"
+LLM_MODEL = "qwen2.5:3b"
 OLLAMA_BASE_URL = "http://localhost:11434"
 LLM_MODEL = "qwen2.5:1.5b"

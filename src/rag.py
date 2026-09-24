@@ -3,19 +3,18 @@ from langchain_core.prompts import PromptTemplate
 from src.config import LLM_MODEL, OLLAMA_BASE_URL
 from src.retriever import HybridRetriever
 
-PROMPT_TEMPLATE = """Você é um assistente estrito de leitura.
-ATENÇÃO: Responda à pergunta usando EXCLUSIVAMENTE as informações do Contexto abaixo.
-Se o contexto não disser explicitamente a resposta para a pergunta, responda APENAS: "Não encontrei essa informação no documento."
+PROMPT_TEMPLATE = """Com base nas informações e diálogos fornecidos no Contexto abaixo, responda à Pergunta de forma clara e objetiva.
 
 Contexto:
 {contexto}
 
 Pergunta: {pergunta}
-Resposta:"""
 
-def executar_rag(retriever: HybridRetriever, pergunta: str, top_k: int = 3):
-    # O retriever agora faz o Reranking e entrega apenas os 3 melhores chunks
+Resposta (se a informação não estiver presente ou não puder ser deduzida do contexto, responda exatamente "Não encontrei essa informação no documento."):"""
+
+def executar_rag(retriever: HybridRetriever, pergunta: str, top_k: int = 5):
     docs_relevantes = retriever.buscar(pergunta, top_k=top_k)
+
     
     print("\n" + "="*50)
     print("🔍 [DEBUG RAG NÍVEL 2 + RERANKER] CHUNKS SELECIONADOS:")
