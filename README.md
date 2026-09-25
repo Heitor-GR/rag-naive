@@ -1,41 +1,26 @@
 
-# 🧠 Naïve RAG Local — Nível 1 (MVP)
+# Advanced RAG - Local Document QA System (Nível 2)
 
-![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)
-![LangChain](https://img.shields.io/badge/LangChain-0.2+-green.svg)
-![Vector DB](https://img.shields.io/badge/ChromaDB-Persistente-red.svg)
-![LLM](https://img.shields.io/badge/Ollama-qwen2.5%3A1.5b-orange.svg)
+A local, privacy-focused Advanced RAG (Retrieval-Augmented Generation) pipeline built to perform precise question answering over long documents without sending data to external APIs.
 
-Pipeline de **Retrieval-Augmented Generation (RAG)** 100% local e privado em Python. Permite fazer perguntas e extrair informações de documentos PDF sem envio de dados para APIs externas, otimizado para execução em **CPU e placas de vídeo integradas**.
+## 🏗️ Architecture
 
----
+1. **Hybrid Retrieval (Lexical + Semantic):**
+   - **BM25 (Lexical):** Exact keyword and named-entity matching using `rank_bm25`.
+   - **ChromaDB (Semantic):** Dense vector search via embeddings (`sentence-transformers/all-MiniLM-L6-v2`).
+   - **Reciprocal Rank Fusion (RRF):** Merges both search results into an initial candidate pool (k=35).
+2. **Multilingual Re-ranking:**
+   - **Cross-Encoder (`mmarco-mMiniLMv2-L12-H384-v1`):** Re-scores candidates to filter out non-relevant context and selects the top-5 highest scoring chunks.
+3. **Generation:**
+   - **Ollama (`qwen2.5:3b`):** Local LLM inference with strict prompt constraints to mitigate hallucinations.
 
-## 📌 Arquitetura do Nível 1
+## 🚀 Quickstart
 
-O sistema segue o fluxo clássico de **Naïve RAG**:
+### Prerequisites
 
-```text
-[ Documento PDF ]
-       │
-       ▼ (loader.py - pypdf)
-[ Texto Bruto ]
-       │
-       ▼ (RecursiveCharacterTextSplitter: 1000 chars, overlap 200)
-[ Chunks de Texto ]
-       │
-       ▼ (sentence-transformers/all-MiniLM-L6-v2)
-[ Embeddings Vetoriais ]
-       │
-       ▼ (vectorstore.py)
-[ ChromaDB Local ]
-       │
-       ├────────────────────────┐
-       ▼ (pergunta do usuário)   ▼ (k=5 chunks mais similares)
-[ Busca Vetorial ] ──► [ Contexto Recuperado ]
-                                │
-                                ▼ (rag.py + Prompt Estrito)
-                         [ Ollama (Qwen2.5:1.5b) ]
-                                │
-                                ▼
-                       [ Resposta Final ]
-```
+- Python 3.10+
+- [Ollama](https://ollama.com/) installed and running locally.
+
+### Installation
+
+1. Clone the repository:

@@ -12,17 +12,17 @@ Pergunta: {pergunta}
 
 Resposta (se a informação não estiver presente ou não puder ser deduzida do contexto, responda exatamente "Não encontrei essa informação no documento."):"""
 
-def executar_rag(retriever: HybridRetriever, pergunta: str, top_k: int = 5):
+def executar_rag(retriever: HybridRetriever, pergunta: str, top_k: int = 5, debug: bool = False):
     docs_relevantes = retriever.buscar(pergunta, top_k=top_k)
-
     
-    print("\n" + "="*50)
-    print("🔍 [DEBUG RAG NÍVEL 2 + RERANKER] CHUNKS SELECIONADOS:")
-    for i, doc in enumerate(docs_relevantes, 1):
-        preview = doc.page_content.replace("\n", " ")[:150]
-        print(f"   [Chunk {i}]: {preview}...")
-    print("="*50 + "\n")
-    
+    if debug:
+        print("\n" + "="*50)
+        print("🔍 [DEBUG RAG] CHUNKS SELECIONADOS:")
+        for i, doc in enumerate(docs_relevantes, 1):
+            preview = doc.page_content.replace("\n", " ")[:150]
+            print(f"   [Chunk {i}]: {preview}...")
+        print("="*50 + "\n")
+        
     contexto = "\n\n".join([doc.page_content for doc in docs_relevantes])
     
     prompt = PromptTemplate.from_template(PROMPT_TEMPLATE)
